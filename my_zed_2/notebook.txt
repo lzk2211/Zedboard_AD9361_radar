@@ -1,0 +1,110 @@
+petalinux-create --type project -s /opt/pkg/petalinux/2019.1/bsp/avnet-digilent-zedboard-v2019.1-final.bsp  -n my_zed
+petalinux-create -t project --template zynq -n ALIENTEK-ZYNQ
+
+petalinux-config --get-hw-description ~/hdffile/AD9361-PL-PS8.sdk
+
+petalinux-build
+
+petalinux-package --boot --format BIN --fsbl images/linux/zynq_fsbl.elf --u-boot images/linux/u-boot.elf --fpga images/linux/*.bit --force
+petalinux-package --boot --fsbl --fpga --u-boot --force
+
+insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko
+
+cat /proc/interrupts | grep xilinx-dma-controller
+
+更改hdf重编译生成BIN:
+petalinux-config --get-hw-description ~/hdffile/AD9361-PL-PS8.sdk && petalinux-build && petalinux-package --boot --format BIN --fsbl images/linux/zynq_fsbl.elf --u-boot images/linux/u-boot.elf --fpga images/linux/*.bit --force
+
+petalinux-create -t apps -n myapp --enable
+
+petalinux-create -t apps --template install -n myapp-init --enable
+
+petalinux-create -t modules --name mymodule --enable
+
+petalinux-package --bsp -o my1.bsp -p ./                生成bsp
+
+petalinux-config -c device-tree
+
+
+tar -zxvf libnet-1.3-install.tar.gz -C /lib
+
+删除module
+/home/kk/my_zed_2/project-spec/meta-plnx-generated/recipes-core/images/petalinux-user-image.bb
+/home/kk/my_zed_2/project-spec/meta-user/recipes-core/images/petalinux-image-full.bbappend
+
+build加速
+→ Yocto Settings → Local sstate feeds settings → Local sstate feeds settings
+/opt/pkg/petalinux/2019.1/sstate-rel-v2019.1/arm
+
+#停止LxssManager服务
+net stop LxssManager  
+ 
+#启动LxssManager服务
+net start LxssManager  
+
+
+//嵌入式Linux
+/proc/device-tree   device-tree查看地址
+/usr/bin            myapp地址
+/sys/class          ZYNQ基础外设地址
+/
+
+mobaxterm 区分文件夹与文件的颜色，方便观察
+vim ~/.bashrc
+alias ls='ls --color=auto'
+source ~/.bashrc
+
+petalinux-package --prebuilt 
+petalinux-boot --qemu --prebuilt 3
+
+petalinux-create -t modules -n xilinx-axidma --enable
+
+dtc -I dtb -O dts -o system.dts system.dtb
+
+
+env default -a
+boot
+
+    */
+    amba_pl: amba_pl{
+            #address-cells = <1>;
+            #size-cells = <1>;
+            compatible = "simple-bus";
+            ranges;
+            irq@0{
+                    compatible = "hello,irq";
+                    interrupt-parent = <&intc>;
+                    interrupts = <0 29 2>;
+            };
+    };
+    */
+
+model = "Zynq Zed Development Board";
+compatible = "xlnx,zynq-zed", "xlnx,zynq-7000";
+
+    leds {
+            compatible = "gpio-leds";
+
+            gpio-led1 {
+                    label = "led1";
+                    gpios = <&gpio0 54 GPIO_ACTIVE_HIGH>;
+                    default-state = "on";
+                    /* linux,default-trigger = "heartbeat"; */
+            };
+
+    };
+
+tar -zxvf libnet-1.3-install.tar.gz -C /lib/ && insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko && chmod 777 *
+
+ldconfig
+ldconfig -v
+
+tar -zxf libpcap-1.10.1-install.tar.gz -C /lib/ && insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko && chmod 777 *
+
+
+编译
+arm-linux-gnueabihf-gcc ./main.c -o ./main -lnet -I/home/kk/my_zed_2/tools/libnet/install/include/ -L/home/kk/my_zed_2/tools/libnet/install/lib/
+
+arm-linux-gnueabihf-gcc ./re1.c -o ./re1 -lpcap -I/home/kk/my_zed_2/tools/libpcap/install/include/ -L/home/kk/my_zed_2/tools/libpcap/install/lib/
+
+tar -zxvf libnet-1.3-install.tar.gz -C /lib/ && tar -zxf libpcap-1.10.1-install.tar.gz -C /lib/ && insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko && chmod 777 *

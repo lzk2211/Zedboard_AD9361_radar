@@ -1,0 +1,91 @@
+安装petalinux，sudo ./*run
+
+以bsp文件建立工程
+petalinux-create --type project -s /opt/pkg/petalinux/2019.1/bsp/avnet-digilent-zedboard-v2019.1-final.bsp  -n my_zed
+以zynq建立工程
+petalinux-create -t project --template zynq -n kk_project
+
+HDF文件配置工程
+petalinux-config --get-hw-description ~/hdffile/AD9361-PL-PS8.sdk
+
+编译，生成image.ub文件
+petalinux-build
+
+打包生成BOOT.BIN
+petalinux-package --boot --format BIN --fsbl images/linux/zynq_fsbl.elf --u-boot images/linux/u-boot.elf --fpga images/linux/*.bit --force
+petalinux-package --boot --fsbl --fpga --u-boot --force
+
+更改hdf重编译生成BIN（三件套）:
+petalinux-config --get-hw-description ~/hdffile/AD9361-PL-PS8.sdk && petalinux-build && petalinux-package --boot --format BIN --fsbl images/linux/zynq_fsbl.elf --u-boot images/linux/u-boot.elf --fpga images/linux/*.bit --force
+
+创建应用程序
+petalinux-create -t apps -n myapp --enable
+
+创建初始化程序
+petalinux-create -t apps --template install -n myapp-init --enable
+
+创建驱动模块
+petalinux-create -t modules --name mymodule --enable
+
+创建xilinx-axidma库
+petalinux-create -t modules -n xilinx-axidma --enable
+petalinux-create -t apps -n data-to-win --enable
+petalinux-create -t apps --template install -n cmd-init --enable
+
+打包生成BSP
+petalinux-package --bsp -o my1.bsp -p ./                生成bsp
+
+编译设备树
+petalinux-config -c device-tree
+
+删除app或者module
+petalinux-config -c rootfs → app 取消app_name
+需要手动找到以下路径，把文件中有关该目录选项的内容删除
+/home/kk/my_zed_2/project-spec/meta-plnx-generated/recipes-core/images/petalinux-user-image.bb
+/home/kk/my_zed_2/project-spec/meta-user/recipes-core/images/petalinux-image-full.bbappend
+
+petalinux-build加速！
+sstate-rel-v2019.1解压到这里 → /opt/pkg/petalinux/2019.1/sstate-rel-v2019.1
+build加速，在config配置中找到以下路径：
+→ Yocto Settings → Local sstate feeds settings → Local sstate feeds settings
+/opt/pkg/petalinux/2019.1/sstate-rel-v2019.1/arm
+
+WSL手动开关
+#停止LxssManager服务
+net stop LxssManager  
+#启动LxssManager服务
+net start LxssManager  
+
+//嵌入式Linux，开发板上找以下路径
+/proc/device-tree   device-tree查看地址
+/usr/bin            myapp地址
+/sys/class          ZYNQ基础外设地址
+
+mobaxterm 区分文件夹与文件的颜色，方便观察
+vim ~/.bashrc
+alias ls='ls --color=auto'
+source ~/.bashrc
+
+启动开发板后，若出现是zynq>，则运行：
+env default -a
+boot
+
+tar -zxvf libnet-1.3-install.tar.gz -C /lib
+
+tar -zxvf libnet-1.3-install.tar.gz -C /lib/ && insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko && chmod 777 *
+
+tar -zxf libpcap-1.10.1-install.tar.gz -C /lib/ && insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko && chmod 777 *
+
+
+编译，arm-linux-gnueabihf-gcc安装之后，petalinux会冲突，按照提示安装一下就好了，问题不大
+arm-linux-gnueabihf-gcc ./main.c -o ./main -lnet -I/home/kk/my_zed_2/tools/libnet/install/include/ -L/home/kk/my_zed_2/tools/libnet/install/lib/
+
+arm-linux-gnueabihf-gcc ./re1.c -o ./re1 -lpcap -I/home/kk/my_zed_2/tools/libpcap/install/include/ -L/home/kk/my_zed_2/tools/libpcap/install/lib/
+
+tar -zxvf libnet-1.3-install.tar.gz -C /lib/ && tar -zxf libpcap-1.10.1-install.tar.gz -C /lib/ && insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko && chmod 777 *
+
+驱动.ko文件的加载
+insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko
+
+查看中断系统
+cat /proc/interrupts | grep xilinx-dma-controller

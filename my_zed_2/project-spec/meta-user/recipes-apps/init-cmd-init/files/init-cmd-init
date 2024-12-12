@@ -1,0 +1,6 @@
+#!/bin/sh
+
+insmod /lib/modules/4.19.0-xilinx-v2019.1/extra/dma-proxy.ko
+
+echo "Init Done! OK OK OK OK OK OK OK OK OK OK"
+
