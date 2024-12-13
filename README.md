@@ -4,7 +4,9 @@
 
 本测试基于ZYNQ模块化设计，主要设计开发流程采用Xilinx Zedbroad开发板和AD9361射频模块联合进行通感一体信号的收发与数据处理工作，硬件系统构建如图1所示，其中Zedbroad开发板主要进行ARM处理系统（Processing System，PS）和FPGA可编程逻辑（Programmable Logic，PL）的开发工作，AD9361射频模块主要完成射频信号的收发及Zedbroad间的通信工作，Zedboard与AD9361模块以FMC接口相连接。
 
-![图1 硬件平台系统](img\图1硬件平台系统.jpg)
+<div align="center">
+    <img src="img/图1硬件平台系统.jpg" alt="图1 硬件平台系统" style="max-width: 100%;">
+</div>
 
 AD9361的输出与输入通道各自接入喇叭天线，通过硬件实现chirp信号收发与PL数字信号处理，天线设备1向测试目标方向发射chirp信号，天线设备2接收返回信号；后续将处理后的结果通过DMA数据传输到PS端Linux操作系统开发，最后将输出信号以以太网接口形式传输到PC机端进行结果的观测。
 
