@@ -1,5 +1,12 @@
 # Zedboard_AD9361_radar
 
+Hello everybody, I have recorded a video explanation on BiliBili, welcome to my account [BiliBili](https://space.bilibili.com/489946576?spm_id_from=333.999.0.0), and give me a following, HaHa~ 😄, Thanks. 👍
+
+<div align="center">
+    <img src="img/BiliBili.jpg" alt="BiliBili" style="max-width: 70%;">
+</div>
+
+
 ## 1 硬件平台设计与开发
 
 本测试基于ZYNQ模块化设计，主要设计开发流程采用Xilinx Zedbroad开发板和AD9361射频模块联合进行通感一体信号的收发与数据处理工作，硬件系统构建如图1所示，其中Zedbroad开发板主要进行ARM处理系统（Processing System，PS）和FPGA可编程逻辑（Programmable Logic，PL）的开发工作，AD9361射频模块主要完成射频信号的收发及Zedbroad间的通信工作，Zedboard与AD9361模块以FMC接口相连接。
